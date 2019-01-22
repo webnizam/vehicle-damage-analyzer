@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Home</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Damage Analyzer</h1>
+        <div>Choose Image below</div>
+        <form action="{% url 'upload_pic' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <p>
+                <input id="id_image" type="file" class="" name="image">
+            </p>
+            <input type="submit" value="Submit" />
+        </form>
+    </div>
+</body>
+
+</html>

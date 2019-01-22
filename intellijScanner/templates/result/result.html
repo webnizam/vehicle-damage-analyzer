@@ -1,0 +1,34 @@
+{% load chartkick %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Home</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="{% static 'chartkick.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/result.css' %}">
+    <script src="http://www.google.com/jsapi"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="center">
+            <h1>Result</h1>
+            <div class="">
+                <img class="default_image_width" src="{% static image_path %}"></img>
+            </div>
+        </div>
+        {% pie_chart browser_stats %}
+        <div class="list-group">
+            {% for label, result in results %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{label}}
+                <span class="badge badge-primary badge-pill">{{result}}</span>
+            </li>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+
+</html>
