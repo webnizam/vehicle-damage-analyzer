@@ -61,7 +61,7 @@ def load_labels(label_file):
 
 def find_match(file):
     file_name = file
-    model_file = "static/ai_models/retrained_graph.pb"
+    model_file = "static/ai_models/quantized_model.pb"
     label_file = "static/ai_models/retrained_labels.txt"
     input_height = 299
     input_width = 299
