@@ -5,9 +5,11 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
+
+tf.disable_v2_behavior()
 
 
 def load_graph(model_file):
@@ -27,6 +29,7 @@ def read_tensor_from_image_file(file_name,
                                 input_width=299,
                                 input_mean=0,
                                 input_std=255):
+
     input_name = "file_reader"
     output_name = "normalized"
     file_reader = tf.read_file(file_name, input_name)
@@ -43,12 +46,12 @@ def read_tensor_from_image_file(file_name,
             file_reader, channels=3, name="jpeg_reader")
     float_caster = tf.cast(image_reader, tf.float32)
     dims_expander = tf.expand_dims(float_caster, 0)
-    resized = tf.image.resize_bilinear(dims_expander, [input_height, input_width])
-    normalized = tf.divide(tf.subtract(resized, [input_mean]), [input_std])
-    sess = tf.Session()
-    result = sess.run(normalized)
-
-    return result
+    resized = tf.image.resize(dims_expander, [input_height, input_width])
+   
+    with tf.Session() as sess:
+        normalized = tf.divide(tf.subtract(resized, [input_mean]), [input_std])
+        result = sess.run(normalized)
+        return result
 
 
 def load_labels(label_file):
@@ -60,45 +63,48 @@ def load_labels(label_file):
 
 
 def find_match(file):
-    file_name = file
-    model_file = "static/ai_models/quantized_model.pb"
-    label_file = "static/ai_models/retrained_labels.txt"
-    input_height = 299
-    input_width = 299
-    input_mean = 0
-    input_std = 255
-    input_layer = "Placeholder"
-    output_layer = "final_result"
+    if file:
+        file_name = file
+        model_file = "static/ai_models/quantized_model.pb"
+        label_file = "static/ai_models/retrained_labels.txt"
+        input_height = 299
+        input_width = 299
+        input_mean = 0
+        input_std = 255
+        input_layer = "Placeholder"
+        output_layer = "final_result"
 
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("--image", help="image to be processed")
-    # args = parser.parse_args()
-    # if args.image:
-    #     file_name = args.image
+        # parser = argparse.ArgumentParser()
+        # parser.add_argument("--image", help="image to be processed")
+        # args = parser.parse_args()
+        # if args.image:
+        #     file_name = args.image
 
-    graph = load_graph(model_file)
-    t = read_tensor_from_image_file(
-        file_name,
-        input_height=input_height,
-        input_width=input_width,
-        input_mean=input_mean,
-        input_std=input_std)
+        graph = load_graph(model_file)
+        t = read_tensor_from_image_file(
+            file_name,
+            input_height=input_height,
+            input_width=input_width,
+            input_mean=input_mean,
+            input_std=input_std)
 
-    input_name = "import/" + input_layer
-    output_name = "import/" + output_layer
-    input_operation = graph.get_operation_by_name(input_name)
-    output_operation = graph.get_operation_by_name(output_name)
+        input_name = "import/" + input_layer
+        output_name = "import/" + output_layer
+        input_operation = graph.get_operation_by_name(input_name)
+        output_operation = graph.get_operation_by_name(output_name)
 
-    with tf.Session(graph=graph) as sess:
-        results = sess.run(output_operation.outputs[0], {
-            input_operation.outputs[0]: t
-        })
-    results = np.squeeze(results)
+        with tf.Session(graph=graph) as sess:
+            results = sess.run(output_operation.outputs[0], {
+                input_operation.outputs[0]: t
+            })
+        results = np.squeeze(results)
 
-    top_k = results.argsort()[-5:][::-1]
-    labels = load_labels(label_file)
+        top_k = results.argsort()[-5:][::-1]
+        labels = load_labels(label_file)
 
-    return results, labels
+        return results, labels
+    else:
+        return "", ""
     # for i in top_k:
     #     print(labels[i], results[i])
 
@@ -118,7 +124,7 @@ def get_sample(data):
 @csrf_exempt
 def homePageView(request):
     results, labels = find_match(
-        "/home/nizamuudin/PycharmProjects/AiExperiments/WreckedCarClassifier/datasets/wrecked/1. f2y0vll.jpg")
+        "")
     zipped_list = zip(labels, results)
     return render_to_response('home/home.html', {'results': zipped_list})
 
