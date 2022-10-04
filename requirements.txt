@@ -1,6 +1,7 @@
-numpy==1.19.2
+numpy==1.23.3
 Django==2.2.24
-tensorflow
-chartkick
-django_heroku
-pillow
+tensorflow-macos==2.10.0
+tensorflow-metal==0.6.0
+chartkick==0.5.0
+pillow==9.2.0
+django_heroku==0.3.1
